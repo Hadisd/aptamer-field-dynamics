@@ -1,0 +1,81 @@
+; ============================================================
+;  Production Phase 2 – 50 ns Continuation
+;  Opposite E-field (Ez = -0.1 V/nm) + 5' Anchor + Aptamer Substrate Wall (Z = 3.80 nm)
+;  GROMACS 2026.2  |  AMBER DNA.OL15 + TIP3P
+; ============================================================
+;
+;  1. The 5' terminal nucleotide (DT-1) is anchored via harmonic
+;     position restraints (-DPOSRES_5PRIME) at Z ≈ 3.33 nm.
+;  2. An aptamer-only planar substrate wall is applied at Z_wall = 3.80 nm
+;     via flat-bottom layer restraints (-DPOSRES_WALL, g=5).
+;     Water and ions move completely freely through 3D PBC.
+;  3. A reversed DC electric field of Ez = -0.1 V/nm is applied along Z.
+;     Because DNA has negative charge (q = -19e), F = qE acts in +Z,
+;     pulling the aptamer towards the substrate wall at Z = 3.80 nm.
+;
+
+; ---- Restraints ----
+define                   = -DPOSRES_5PRIME -DPOSRES_WALL
+
+; ---- Run parameters ----
+integrator               = md
+dt                       = 0.002
+tinit                    = 1500
+nsteps                   = 24250000     ; 48.5 ns (1500 to 50000 ps)
+
+; ---- Output control ----
+nstxout                  = 0
+nstvout                  = 0
+nstfout                  = 0
+nstxout-compressed       = 5000         ; save .xtc every 10 ps (5001 frames)
+compressed-x-grps        = System
+nstenergy                = 5000         ; energies every 10 ps
+nstlog                   = 5000
+
+; ---- Bond constraints ----
+continuation             = yes
+constraint_algorithm     = lincs
+constraints              = h-bonds
+lincs_iter               = 1
+lincs_order              = 4
+
+; ---- Neighbour searching ----
+cutoff-scheme            = Verlet
+nstlist                  = 20
+
+; ---- Electrostatics ----
+coulombtype              = PME
+rcoulomb                 = 1.0
+
+; ---- van der Waals ----
+vdwtype                  = cutoff
+vdw-modifier             = Potential-shift-Verlet
+rvdw                     = 1.0
+DispCorr                 = EnerPres
+
+; ---- Temperature coupling ----
+tcoupl                   = V-rescale
+tc-grps                  = DNA          Water_and_ions
+tau_t                    = 0.1          0.1
+ref_t                    = 300          300
+
+; ---- Pressure coupling ----
+pcoupl                   = C-rescale
+pcoupltype               = isotropic
+tau_p                    = 2.0
+ref_p                    = 1.0
+compressibility          = 4.5e-5
+refcoord_scaling         = com          ; scale restraint reference coords with box
+
+; ---- Periodic boundary conditions ----
+pbc                      = xyz
+
+; ---- Velocity generation ----
+gen_vel                  = no
+
+; ════════════════════════════════════════════════════════════
+;  REVERSED ELECTRIC FIELD (Ez = -0.1 V/nm, pulls DNA up in +Z)
+; ════════════════════════════════════════════════════════════
+electric-field-x         = 0.0  0  0  0
+electric-field-y         = 0.0  0  0  0
+electric-field-z         = -0.1  0  0  0   ; -0.1 V/nm DC field along Z

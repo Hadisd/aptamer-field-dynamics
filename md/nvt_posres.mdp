@@ -1,0 +1,65 @@
+; ============================================================
+;  NVT equilibration – 5 ns, 5' end of DNA restrained
+;  GROMACS 2026  |  AMBER ff14SB + DNA.OL15 + TIP3P
+; ============================================================
+;
+;  The 5' terminal nucleotide (DT-1 of aptamer chain B) is kept
+;  in place with flat-bottom position restraints (-DPOSRES_5PRIME).
+;  This mimics the physical situation where the 5' end is anchored
+;  (e.g. covalently tethered to a surface or a gold nanoparticle).
+;
+
+; ---- preprocessor flag for 5' restraints ----
+define                   = -DPOSRES_5PRIME
+
+; ---- run parameters ----
+integrator               = md
+dt                       = 0.002        ; 2 fs
+nsteps                   = 2500000      ; 5 ns  (5 000 000 fs / 2 fs)
+
+; ---- output ----
+nstxout                  = 0
+nstvout                  = 0
+nstfout                  = 0
+nstxout-compressed       = 5000         ; save .xtc every 10 ps
+compressed-x-grps        = System
+nstenergy                = 2500         ; save energies every 5 ps
+nstlog                   = 2500         ; update log every 5 ps
+
+; ---- bond constraints (AMBER convention: all h-bonds) ----
+continuation             = no           ; first dynamics run (fresh velocities)
+constraint_algorithm     = lincs
+constraints              = h-bonds
+lincs_iter               = 1
+lincs_order              = 4
+
+; ---- neighbour searching ----
+cutoff-scheme            = Verlet
+nstlist                  = 20
+
+; ---- electrostatics ----
+coulombtype              = PME
+rcoulomb                 = 1.0
+
+; ---- van der Waals ----
+vdwtype                  = cutoff
+vdw-modifier             = Potential-shift-Verlet
+rvdw                     = 1.0
+DispCorr                 = EnerPres
+
+; ---- temperature coupling ----
+tcoupl                   = V-rescale
+tc-grps                  = DNA  Water_and_ions
+tau_t                    = 0.1  0.1
+ref_t                    = 300  300
+
+; ---- pressure coupling (off in NVT) ----
+pcoupl                   = no
+
+; ---- PBC ----
+pbc                      = xyz
+
+; ---- velocity generation ----
+gen_vel                  = yes
+gen_temp                 = 300
+gen_seed                 = -1

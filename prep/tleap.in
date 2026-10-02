@@ -1,0 +1,11 @@
+
+source leaprc.DNA.OL15
+source leaprc.water.tip3p
+apt = loadpdb /home/hadi/Project/prot-apt/apt-alone/file/aptamer.pdb
+check apt
+solvateoct apt TIP3PBOX 20.0
+addions2 apt Na+ 19
+addions2 apt Na+ 34
+addions2 apt Cl- 34
+saveamberparm apt /home/hadi/Project/prot-apt/apt-alone/prep/aptamer.prmtop /home/hadi/Project/prot-apt/apt-alone/prep/aptamer.inpcrd
+quit

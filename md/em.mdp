@@ -1,0 +1,34 @@
+; ============================================================
+;  Energy minimisation – protein-DNA aptamer complex (8TFD)
+;  GROMACS 2026  |  AMBER ff14SB + DNA.OL15 + TIP3P
+; ============================================================
+
+integrator               = steep
+emtol                    = 500.0        ; kJ mol-1 nm-1 – stop when max force < this
+emstep                   = 0.01
+nsteps                   = 50000
+
+; Neighbour searching
+cutoff-scheme            = Verlet
+nstlist                  = 20
+
+; Electrostatics
+coulombtype              = PME
+rcoulomb                 = 1.0          ; nm
+
+; van der Waals
+vdwtype                  = cutoff
+vdw-modifier             = Potential-shift-Verlet
+rvdw                     = 1.0          ; nm
+DispCorr                 = EnerPres
+
+; PBC
+pbc                      = xyz
+
+; Constraints (none during EM)
+constraints              = none
+
+; Output
+nstxout                  = 0
+nstenergy                = 100
+nstlog                   = 100

@@ -1,0 +1,79 @@
+; ============================================================
+;  Production run – 20 ns + 5' end restrained + DC electric field
+;  GROMACS 2026  |  AMBER DNA.OL15 + TIP3P
+; ============================================================
+;
+;  The 5' terminal nucleotide (DT-1) is ANCHORED via position
+;  restraints (-DPOSRES_5PRIME), simulating a tethered aptamer
+;  (e.g. attached to an electrode surface / nanoparticle / nanopore).
+;
+;  A static uniform electric field of 0.1 V nm⁻¹ is applied along
+;  the Z axis, driving conformational response while 5' is pinned.
+;
+
+; ---- Keep 5' terminal nucleotide (DT-1) restrained ----
+define                   = -DPOSRES_5PRIME
+
+; ---- run parameters ----
+integrator               = md
+dt                       = 0.002
+nsteps                   = 50000000     ; 100 ns (extended)
+
+; ---- output ----
+nstxout                  = 0
+nstvout                  = 0
+nstfout                  = 0
+nstxout-compressed       = 5000         ; save .xtc every 10 ps
+compressed-x-grps        = System
+nstenergy                = 5000         ; energies every 10 ps
+nstlog                   = 5000
+
+; ---- bond constraints ----
+continuation             = yes
+constraint_algorithm     = lincs
+constraints              = h-bonds
+lincs_iter               = 1
+lincs_order              = 4
+
+; ---- neighbour searching ----
+cutoff-scheme            = Verlet
+nstlist                  = 20
+
+; ---- electrostatics ----
+coulombtype              = PME
+rcoulomb                 = 1.0
+
+; ---- van der Waals ----
+vdwtype                  = cutoff
+vdw-modifier             = Potential-shift-Verlet
+rvdw                     = 1.0
+DispCorr                 = EnerPres
+
+; ---- temperature coupling ----
+tcoupl                   = V-rescale
+tc-grps                  = DNA          Water_and_ions
+tau_t                    = 0.1          0.1
+ref_t                    = 300          300
+
+; ---- pressure coupling ----
+pcoupl                   = C-rescale
+pcoupltype               = isotropic
+tau_p                    = 2.0
+ref_p                    = 1.0
+compressibility          = 4.5e-5
+refcoord_scaling         = com          ; scale restraint reference coords with box
+
+; ---- PBC ----
+pbc                      = xyz
+
+; ---- velocity generation ----
+gen_vel                  = no
+
+; ════════════════════════════════════════════════════════════
+;  ELECTRIC FIELD  (static DC field along Z axis)
+;  Format:  amplitude(V/nm)  frequency(ps⁻¹)  phase(ps)  offset(ps)
+;  frequency=0  →  DC field (no oscillation)
+; ════════════════════════════════════════════════════════════
+electric-field-x         = 0.0  0  0  0
+electric-field-y         = 0.0  0  0  0
+electric-field-z         = 0.1  0  0  0   ; 0.1 V/nm DC field along Z

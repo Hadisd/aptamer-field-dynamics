@@ -1,0 +1,65 @@
+; ============================================================
+;  NPT equilibration – 5 ns, 5' end of DNA restrained
+;  GROMACS 2026  |  AMBER ff14SB + DNA.OL15 + TIP3P
+; ============================================================
+;
+;  Continues from NVT.  Density and pressure are equilibrated
+;  while the 5' anchor restraint is still active.
+;
+
+define                   = -DPOSRES_5PRIME
+
+; ---- run parameters ----
+integrator               = md
+dt                       = 0.002
+nsteps                   = 2500000      ; 5 ns
+
+; ---- output ----
+nstxout                  = 0
+nstvout                  = 0
+nstfout                  = 0
+nstxout-compressed       = 5000         ; every 10 ps
+compressed-x-grps        = System
+nstenergy                = 2500
+nstlog                   = 2500
+
+; ---- bond constraints ----
+continuation             = yes          ; continuing from NVT
+constraint_algorithm     = lincs
+constraints              = h-bonds
+lincs_iter               = 1
+lincs_order              = 4
+
+; ---- neighbour searching ----
+cutoff-scheme            = Verlet
+nstlist                  = 20
+
+; ---- electrostatics ----
+coulombtype              = PME
+rcoulomb                 = 1.0
+
+; ---- van der Waals ----
+vdwtype                  = cutoff
+vdw-modifier             = Potential-shift-Verlet
+rvdw                     = 1.0
+DispCorr                 = EnerPres
+
+; ---- temperature coupling ----
+tcoupl                   = V-rescale
+tc-grps                  = DNA  Water_and_ions
+tau_t                    = 0.1          0.1
+ref_t                    = 300          300
+
+; ---- pressure coupling (C-rescale for equilibration) ----
+pcoupl                   = C-rescale
+pcoupltype               = isotropic
+tau_p                    = 2.0
+ref_p                    = 1.0
+compressibility          = 4.5e-5
+refcoord_scaling         = com          ; scale restraint reference coords with box
+
+; ---- PBC ----
+pbc                      = xyz
+
+; ---- velocity generation ----
+gen_vel                  = no           ; velocities carried over from NVT

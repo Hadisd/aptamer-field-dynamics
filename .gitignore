@@ -1,0 +1,44 @@
+# Simulation runs and temporary rendering files
+/run/
+/scratch/
+
+# GROMACS trajectories, binary inputs, energies, and checkpoints
+*.xtc
+*.trr
+*.tng
+*.tpr
+*.edr
+*.cpt
+*.xvg
+*.json
+/mdout.mdp
+
+# Generated AMBER-to-GROMACS conversion directory
+/prep/system.amb2gmx/
+/prep/temp_solv.in
+
+# Logs and GROMACS backup files
+*.log
+\#*\#
+*~
+
+# Generated videos; GIFs and plot images remain available to commit
+*.mp4
+*.png
+
+# Python caches and local environments
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.venv/
+venv/
+.pixi/
+
+# Hidden files and directories
+.*
+!.git
+!.gitignore
+
+# OS metadata
+Thumbs.db
+archive/
